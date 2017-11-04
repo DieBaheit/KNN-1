@@ -1,4 +1,0 @@
-/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" "/Users/MACBOOK/5Semester/Künstliche Neuronale Netze/Old_homeworks/practical/ann_exercise_1"
--- Configuring done
--- Generating done
--- Build files have been written to: /Users/MACBOOK/5Semester/Künstliche Neuronale Netze/Old_homeworks/practical/ann_exercise_1/cmake-build-debug

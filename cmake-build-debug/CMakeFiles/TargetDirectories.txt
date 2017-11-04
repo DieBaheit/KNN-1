@@ -1,3 +1,0 @@
-/Users/MACBOOK/5Semester/Künstliche Neuronale Netze/Old_homeworks/practical/ann_exercise_1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/MACBOOK/5Semester/Künstliche Neuronale Netze/Old_homeworks/practical/ann_exercise_1/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/MACBOOK/5Semester/Künstliche Neuronale Netze/Old_homeworks/practical/ann_exercise_1/cmake-build-debug/CMakeFiles/ann1.dir
