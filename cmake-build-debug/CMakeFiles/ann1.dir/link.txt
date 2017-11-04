@@ -1,0 +1,1 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/ann1.dir/main.cpp.o CMakeFiles/ann1.dir/polynomial_regression.cpp.o CMakeFiles/ann1.dir/matrix.cpp.o  -o ann1 
