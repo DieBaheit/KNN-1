@@ -20,20 +20,37 @@ operator<<
 )
 {
   // Draw row-wise, as is convenient for text output.
-  for (ann::matrix::size_t row_l = 0; row_l < matrix_a.rows(); ++row_l)
+  for (ann::matrix::size row_l = 0; row_l < matrix_a.rows(); ++row_l)
   {
-    for (ann::matrix::size_t col_l = 0; col_l < matrix_a.cols(); ++col_l)
+    stream_a << matrix_a(row_l, 0);
+    for (ann::matrix::size col_l = 1; col_l < matrix_a.cols(); ++col_l)
     {
-      stream_a << matrix_a(row_l, col_l) << "\t";
+      stream_a << "\t" << matrix_a(row_l, col_l);
     }
-    stream_a << "\n\n";
+    stream_a << "\n";
   }
   // Return the new position in the stream, as usual for overloads of operator<<.
   return stream_a;
 }
 
+/// scalar multiplication (with scalar on the left hand side).
+/// Creates a copy of the matrix where all elements are scaled by the given
+/// factor.
+ann::matrix
+operator*
+(
+  ann::matrix::real factor_a,
+  ann::matrix matrix_a
+)
+{
+  matrix_a *= factor_a;
+
+  return matrix_a;
+}
+
 
 // Definition of class matrix - - - - - - - - - - - - - - - - - - - - - - - - - -
+thread_local std::random_device ann::matrix::random_device_m;
 
 /// primary constructor
 /// Creates a matrix with the given number of columns and rows.
@@ -43,14 +60,13 @@ ann::matrix
 ::
 matrix
 (
-  size_t rows_a,
-  size_t cols_a,
-  real_t value_a
+  size rows_a,
+  size cols_a,
+  real value_a
 )
 : rows_m(rows_a),
   cols_m(cols_a),
   data_m(rows_m * cols_m, value_a),
-  random_device_m(),
   random_engine_m(random_device_m())
 {
 }
@@ -66,7 +82,6 @@ matrix
 : rows_m(other_a.rows_m),
   cols_m(other_a.cols_m),
   data_m(other_a.data_m),
-  random_device_m(),
   random_engine_m(random_device_m())
 {
 }
@@ -82,7 +97,6 @@ matrix
 : rows_m(other_a.rows_m),
   cols_m(other_a.cols_m),
   data_m(std::move(other_a.data_m)),
-  random_device_m(),
   random_engine_m(random_device_m())
 {
 }
@@ -122,8 +136,24 @@ operator=
   return *this;
 }
 
+/// assignement operator
+/// Assigns the given scalar to each element of the matrix.
+ann::matrix&
+ann::matrix
+::
+operator=
+(
+  const real value_a
+)
+{
+  for (real& element_l : data_m)  element_l = value_a;
+
+  return *this;
+}
+
+
 /// Returnes the number of rows in this matrix.
-ann::matrix::size_t
+ann::matrix::size
 ann::matrix
 ::
 rows
@@ -133,7 +163,7 @@ rows
 }
 
 /// Returnes the number of columns in this matrix.
-ann::matrix::size_t
+ann::matrix::size
 ann::matrix
 ::
 cols
@@ -142,18 +172,46 @@ cols
   return cols_m;
 }
 
+
+/// Gets element at the given row and column.
+ann::matrix::real
+ann::matrix
+::
+get
+(
+  size row_a,
+  size col_a
+) const
+{
+  return operator()(row_a, col_a);
+}
+
+/// Sets element at the given row and column.
+void
+ann::matrix
+::
+set
+(
+  size row_a,
+  size col_a,
+  real value_a
+)
+{
+  operator()(row_a, col_a) = value_a;
+}
+
 /// Accesses element (read/write) in the given row and column of the matrix.
 /// This version of the operator returns a non-const reference to allow
 /// modification of the matrix element.
 /// Warning: Parameters are considered indices starting at 0.
 /// E.g.: To access the element in the first row and second column use (0, 1).
-ann::matrix::real_t&
+ann::matrix::real&
 ann::matrix
 ::
 operator()
 (
-  const size_t row_a,
-  const size_t col_a
+  const size row_a,
+  const size col_a
 )
 {
   // Assert that indices are in bounds.
@@ -167,13 +225,13 @@ operator()
 /// elements in case this matrix is const.
 /// Warning: Parameters are considered indices starting at 0.
 /// E.g.: To access the element in the first row and second column use (0, 1).
-const ann::matrix::real_t&
+const ann::matrix::real&
 ann::matrix
 ::
 operator()
 (
-  const size_t row_a,
-  const size_t col_a
+  const size row_a,
+  const size col_a
 ) const
 {
   // Assert that indices are in bounds.
@@ -181,6 +239,106 @@ operator()
   // Return the specified element, retreived by 1D index.
   return data_m[row_a + rows() * col_a];
 }
+
+
+/// Accesses element (read/write) at the given index.
+/// This is useful for vectors (matrices with only one row or column),
+/// allowing access without having to give the superfluous row or column
+/// index as argument.
+ann::matrix::real&
+ann::matrix
+::
+operator()
+(
+  size index_a
+)
+{
+  return data_m.at(index_a);
+}
+
+/// Accesses element (read only) at the given index.
+/// This is useful for vectors (matrices with only one row or column),
+/// allowing access without having to give the superfluous row or column
+/// index as argument.
+const ann::matrix::real&
+ann::matrix
+::
+operator()
+(
+  size index_a
+) const
+{
+  return data_m.at(index_a);
+}
+
+
+/// scalar cast operator
+/// Access the first element as if the matrix was a scalar.
+/// Returns a reference to element (0,0) when using this matrix in a context
+/// where a scalar is required.
+ann::matrix
+::
+operator ann::matrix::real&
+()
+{
+  return data_m.front();
+}
+
+/// scalar cast operator
+/// Access the first element as if the matrix was a scalar.
+/// Returns a const reference to element (0,0) when using this matrix in a
+/// context where a scalar is required.
+ann::matrix
+::
+operator const ann::matrix::real&
+() const
+{
+  return data_m.front();
+}
+
+
+/// Extracts a column from this matrix.
+/// Returns a matrix with the same number of rows as this matrix and one
+/// column, where the elements are copied from the column at the given index
+/// of this matrix.
+ann::matrix
+ann::matrix
+::
+column
+(
+  size col_a
+) const
+{
+  matrix vector_l(rows(), 1);
+  for (size row_l = 0; row_l < rows(); ++row_l)
+  {
+    vector_l(row_l) = get(row_l, col_a);
+  }
+
+  return vector_l;
+}
+
+/// Extracts a row from this matrix.
+/// Returns a matrix with the same number of columns as this matrix and one
+/// row, where the elements are copied from the row at the given index
+/// of this matrix.
+ann::matrix
+ann::matrix
+::
+row
+(
+  size row_a
+) const
+{
+  matrix vector_l(1, cols());
+  for (size col_l = 0; col_l < cols(); ++col_l)
+  {
+    vector_l(col_l) = get(row_a, col_l);
+  }
+
+  return vector_l;
+}
+
 
 
 /// matrix addition
@@ -221,12 +379,59 @@ operator+=
     data_m.end(),
     other_a.data_m.begin(),
     data_m.begin(),
-    std::plus<real_t>()
+    std::plus<real>()
   );
 
   // Return a reference to this to allow chaining of operations.
   return *this;
 }
+
+
+/// matrix subtraction
+/// Creates a new matrix as the difference of this and the given other matrix.
+ann::matrix
+ann::matrix
+::
+operator-
+(
+  const matrix& other_a
+) const
+{
+  // Create resulting matrix as copy of this.
+  matrix result_l(*this);
+  // Add the other matrix using addition assignment operator, which also asserts
+  // matching matrix extents.
+  result_l -= other_a;
+
+  return result_l;
+}
+
+/// matrix subtraction, compound assignment
+/// Subtracts the given matrix from this matrix, storing the result in this.
+ann::matrix&
+ann::matrix
+::
+operator-=
+(
+  const matrix& other_a
+)
+{
+  // Matrix subtraction is only possible for matrices of matching extents.
+  assert(rows() == other_a.rows() && cols() == other_a.cols());
+
+  // Subtract matrix elements utilizing transform from header algorithm.
+  std::transform
+  ( data_m.begin(),
+    data_m.end(),
+    other_a.data_m.begin(),
+    data_m.begin(),
+    std::minus<real>()
+  );
+
+  // Return a reference to this to allow chaining of operations.
+  return *this;
+}
+
 
 /// matrix multiplication
 /// Creates a new matrix as the product of this and the given other matrix.
@@ -245,12 +450,12 @@ operator*
   matrix result_l(rows(), other_a.cols(), 0.0);
 
   // Fill the resulting matrix.
-  for (size_t col_l = 0; col_l < result_l.cols(); ++col_l)
+  for (size col_l = 0; col_l < result_l.cols(); ++col_l)
   {
-    for (size_t row_l = 0; row_l < result_l.rows(); ++row_l)
+    for (size row_l = 0; row_l < result_l.rows(); ++row_l)
     {
       // Traverse the "other" dimension and sum up the products.
-      for (size_t cow_l = 0; cow_l < cols(); ++ cow_l)
+      for (size cow_l = 0; cow_l < cols(); ++ cow_l)
       {
         result_l(row_l, col_l) += (*this)(row_l, cow_l) * other_a(cow_l, col_l);
       }
@@ -289,7 +494,7 @@ ann::matrix
 ::
 operator*
 (
-  const real_t b_a
+  const real b_a
 ) const
 {
   // Create a copy of this matrix.
@@ -308,7 +513,7 @@ ann::matrix
 ::
 operator*=
 (
-  const real_t b_a
+  const real b_a
 )
 {
   // There's no need to traverse the matrix by rows and columns for this
@@ -316,7 +521,7 @@ operator*=
   // nice type of loop added with C++11.
   // Note the '&' declaring this element_l as a reference, thus allowing
   // modification of the elements.
-  for (real_t& element_l : data_m)  element_l *= b_a;
+  for (real& element_l : data_m)  element_l *= b_a;
   // For all loops ommiting the curly braces is allowed, if the body of the loop
   // contains not more than one line of code. This is considered bad style by
   // some and it's best to be careful with it.
@@ -324,6 +529,50 @@ operator*=
 
   // Return a reference to this to allow chaining of operations.
   return *this;
+}
+
+
+/// scalar division
+/// Creates a copy of this matrix where all elements are divided by the given
+/// value.
+ann::matrix
+ann::matrix
+::
+operator/
+(
+  real b_a
+) const
+{
+  return operator*(1.0 / b_a);
+}
+
+/// scalar division, compound assignment
+/// Divides this matrix by the given value.
+ann::matrix&
+ann::matrix
+::
+operator/=
+(
+  real b_a
+)
+{
+  return operator*=(1.0 / b_a);
+}
+
+
+/// transpose
+/// Creates a transposed copy of this matrix.
+ann::matrix
+ann::matrix
+::
+transpose () const
+{
+  matrix transpose_l(cols(), rows());
+  for (size row_l = 0; row_l < rows(); ++row_l)
+    for (size col_l = 0; col_l < cols(); ++col_l)
+      transpose_l(col_l, row_l) = operator()(row_l, col_l);
+
+  return transpose_l;
 }
 
 
@@ -344,7 +593,7 @@ inverse () const
   matrix Vc_l(cols(), cols());
   // W (also known as Sigma) is a diagonal matrix, so space can be saved by only
   // storing the elements on the main diagonal (all others are 0).
-  data_t W_l(cols());
+  data W_l(cols());
 
   // Fill U, V* and W with the singular value decomposition matrices of this.
   singular_value_decomposition(U_l, Vc_l, W_l);
@@ -363,16 +612,16 @@ inverse () const
   // In general, choosing a proper epsilon (whenever an epsilon is needed) can
   // be far from trivial and should not be taken lightly. A poor choice, not
   // fitting the context, may lead to arbitrarily wrong results.
-  const real_t epsilon_l
-    = std::numeric_limits<real_t>::epsilon()
+  const real epsilon_l
+    = std::numeric_limits<real>::epsilon()
     * std::max(rows(), cols())
     * *std::max_element(W_l.begin(), W_l.end());
-  //const real_t epsilon_l = 1e-12;
+  //const real epsilon_l = 1e-12;
 
   // Inversion of a diagonal matrix can be achieved by transposing it and
   // inverting all non-zero entries.
   // Also, delete all singular values (i.e. the eigenvalues less than epsilon_l).
-  for (real_t& wi_l : W_l)
+  for (real& wi_l : W_l)
   {
     if (wi_l < epsilon_l) // Note: All wi_l are non-negative, no abs needed.
       wi_l = 0.0;
@@ -388,9 +637,9 @@ inverse () const
   // V and U* (that is the transpose of U_l and Vc_l) are implictly computed by
   // switching indices when accessing the matrix variables.
   // The need of only three loops is due to the fact that W+ is a diagonal matrix.
-  for (size_t col_l = 0; col_l < inverse_l.cols(); ++col_l)
-    for (size_t row_l = 0; row_l < inverse_l.rows(); ++row_l)
-      for (size_t cow_l = 0; cow_l < W_l.size(); ++cow_l)
+  for (size col_l = 0; col_l < inverse_l.cols(); ++col_l)
+    for (size row_l = 0; row_l < inverse_l.rows(); ++row_l)
+      for (size cow_l = 0; cow_l < W_l.size(); ++cow_l)
       {
         inverse_l(row_l, col_l)
           += Vc_l(row_l, cow_l) * W_l[cow_l] * U_l(col_l, cow_l);
@@ -404,25 +653,41 @@ inverse () const
 /// Fills this matrix with pseudo-random values drawn from a uniform
 /// distribution over the interval defined by the given lower and upper bound,
 /// where the lower bound is inclusive and the upper is not.
-void
+ann::matrix&
 ann::matrix
 ::
 fill_with_uniform_samples
 (
-  real_t lower_bound_a,
-  real_t upper_bound_a
+  real lower_bound_a,
+  real upper_bound_a
 )
 {
   // Correct the arguments, if the user failed to pass them in the right order.
   if (lower_bound_a > upper_bound_a)  std::swap(lower_bound_a, upper_bound_a);
 
   // Create a distribution object for the utilized floating point type.
-  std::uniform_real_distribution<real_t>
+  std::uniform_real_distribution<real>
     distribution_l(lower_bound_a, upper_bound_a);
 
   // Use the random engine of this matrix to draw samples.
-  for (real_t& element_l : data_m)  element_l = distribution_l(random_engine_m);
+  for (real& element_l : data_m)  element_l = distribution_l(random_engine_m);
+
+  return *this;
 }
+
+/// Calls fill_with_uniform_samples.
+ann::matrix&
+ann::matrix
+::
+randomize
+(
+  real lower_bound_a,
+  real upper_bound_a
+)
+{
+  return fill_with_uniform_samples(lower_bound_a, upper_bound_a);
+}
+
 
 /// Compares two matrices for equality.
 bool
@@ -445,7 +710,18 @@ operator==
     if (!ann::equal(*it1_l, *it2_l))  return false;
   }
   return true;
-  //  return std::equal(data_m.begin(), data_m.end(), other_a.data_m.begin(), &ann::eq<real_t>);
+}
+
+/// Compares two matrices for inequality.
+bool
+ann::matrix
+::
+operator!=
+(
+  const matrix& other_a
+) const
+{
+  return !operator==(other_a);
 }
 
 /// Returns true, iff this is a Hermitian (or self-adjoint) matrix.
@@ -456,9 +732,9 @@ is_hermitian () const
 {
   if (rows() != cols())  return false;
 
-  for (size_t col_l = 1; col_l < cols(); ++col_l)
+  for (size col_l = 1; col_l < cols(); ++col_l)
   {
-    for (size_t row_l = 0; row_l < col_l; ++row_l)
+    for (size row_l = 0; row_l < col_l; ++row_l)
     {
       if (!ann::equal((*this)(row_l, col_l), (*this)(col_l, row_l)))
         return false;
@@ -485,21 +761,21 @@ singular_value_decomposition
 (
   matrix& u,
   matrix& v,
-  data_t& w // also known as Sigma
+  data& w // also known as Sigma
 ) const
 {
-  diff_t m = rows(), n = cols();
+  diff m = rows(), n = cols();
 
   w.resize(n);
-  data_t rv1(n);
+  data rv1(n);
 
   int flag;
-  diff_t i, its, j, jj, k, l, nm(0);
-  real_t anorm, c, f, g, h, p, s, scale, x, y, z;
+  diff i, its, j, jj, k, l, nm(0);
+  real anorm, c, f, g, h, p, s, scale, x, y, z;
 
   // Returns a number with the same magnitude as a and the same sign as b.
   auto adapt_sign
-    = [](real_t a, real_t b)
+    = [](real a, real b)
       {
         return b > 0 ? std::fabs(a) : -std::fabs(a);
       };

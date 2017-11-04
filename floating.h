@@ -8,16 +8,16 @@
 
 namespace ann
 {
-  //! Tolerable distance in Units in the Last Place for comparing floating
-  //! point numbers.
+  /// Tolerable distance in Units in the Last Place for comparing floating
+  /// point numbers.
   constexpr std::uint_fast8_t ULP_TOLERANCE = 10;
-  //! Product of this and corresponding epsilon yields tolerance for comparing
-  //! floating point numbers.
+  /// Product of this and corresponding epsilon yields tolerance for comparing
+  /// floating point numbers.
   constexpr std::uint_fast8_t ABSOLUTE_TOLERANCE_FACTOR = 10 * ULP_TOLERANCE;
 
 
-  //! Supplies typedefs to integer types with the same bit width as T. Types
-  //! resolve to void, if no integer type of matching width exists.
+  /// Supplies typedefs to integer types with the same bit width as T. Types
+  /// resolve to void, if no integer type of matching width exists.
   template <class T> struct SameWidthAs
   {
     typedef // signed integer
@@ -44,10 +44,10 @@ namespace ann
   };
 
 
-  //! Holds information on any floating point type T; undefined for other types.
-  //! Only use the single template argument version of this class.
+  /// Holds information on any floating point type T; undefined for other types.
+  /// Only use the single template argument version of this class.
   template <class T, class Enable = void> struct FloatingFacts;
-  //! Specialization for floating point types.
+  /// Specialization for floating point types.
   template <class T>
   struct
   FloatingFacts
@@ -55,19 +55,19 @@ namespace ann
     typename std::enable_if< std::is_floating_point< T >::value >::type
   >
   {
-    //! Unsigned integral type used to specify bit width of type T.
+    /// Unsigned integral type used to specify bit width of type T.
     typedef std::uint_fast16_t BitWidth;
-    //! Shortcut to additional information on type T.
+    /// Shortcut to additional information on type T.
     typedef std::numeric_limits<T> Traits;
 
-    //! Bit width of type T.
+    /// Bit width of type T.
     static constexpr BitWidth BITS = sizeof(T) * 8;
-    //! Bit width of the mantissa of type T.
+    /// Bit width of the mantissa of type T.
     static constexpr BitWidth MANTISSA_BITS = Traits::digits - 1;
-    //! Bit width of the exponent of type T.
+    /// Bit width of the exponent of type T.
     static constexpr BitWidth EXPONENT_BITS = BITS - MANTISSA_BITS - 1;
 
-    //! True, iff this type is compatible with ULP based relative comparison.
+    /// True, iff this type is compatible with ULP based relative comparison.
     static constexpr bool can_exploit_ulp
       = std::numeric_limits< T >::is_iec559 &&
           !std::is_void< typename SameWidthAs< T >::Int >::value;
@@ -75,14 +75,14 @@ namespace ann
 
 
 
-  //! Compares floating point values in a rather reasonable way. This is
-  //! probably as good as a generic comparison gets, but will still fail in
-  //! many situations. You should always consider not only the magnitude of
-  //! the compared values (what this function does), but also pay heed to the
-  //! history of each value to know what to consider equal.
-  //! This version utilizes ULP based relative comparison. It is only available
-  //! for floating point types of applicable format and bit width.
-  //! Thanks to: http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+  /// Compares floating point values in a rather reasonable way. This is
+  /// probably as good as a generic comparison gets, but will still fail in
+  /// many situations. You should always consider not only the magnitude of
+  /// the compared values (what this function does), but also pay heed to the
+  /// history of each value to know what to consider equal.
+  /// This version utilizes ULP based relative comparison. It is only available
+  /// for floating point types of applicable format and bit width.
+  /// Thanks to: http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
   template <typename T>
   typename std::enable_if
            < std::is_floating_point< T >::value && FloatingFacts< T >::can_exploit_ulp,
@@ -112,9 +112,9 @@ namespace ann
   }
 
 
-  //! This version of equality comparison is used for types, that can not be
-  //! compared with the ULP trick. Its not inferior to the ULP version, but
-  //! behaves slightly different and looks less cool.
+  /// This version of equality comparison is used for types, that can not be
+  /// compared with the ULP trick. It's not inferior to the ULP version, but
+  /// behaves slightly different and looks less cool.
   template <typename T>
   typename std::enable_if
            < std::is_floating_point< T >::value && !FloatingFacts< T >::can_exploit_ulp,
@@ -140,10 +140,10 @@ namespace ann
   }
 
 
-  //! Binary equality predicate used for non floating point types. This is not
-  //! meant to replace ==, but to offer floating point comparison of templated
-  //! types without 'damaging' comparison of other types.
-  //! By the way: Please notice the nice overloading based on type properties.
+  /// Binary equality predicate used for non floating point types. This is not
+  /// meant to replace ==, but to offer floating point comparison of templated
+  /// types without 'damaging' comparison of other types.
+  /// By the way: Please notice the nice overloading based on type properties.
   template <typename T>
   typename std::enable_if<!std::is_floating_point<T>::value, bool>::type
   equal
@@ -155,7 +155,7 @@ namespace ann
     return xA == yA;
   }
 
-  //! This is a shorcut to function equal with (not always sane) default parameters.
+  /// This is a shorcut to function equal with (not always sane) default parameters.
   template <typename T> bool eq (T xA, T yA) { return equal(xA, yA); }
 
 } // namespace ann
