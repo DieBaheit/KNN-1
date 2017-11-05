@@ -150,7 +150,7 @@ real compute_error (const regressor& regressor_a, const matrix& test_set_a)
   // @task: Return the error for of the given regressor on the given test set.
     real error = 0;
     for(size p = 1; p <= test_set_a.rows();p++){
-        error += pow((regressor_a.y(test_set_a.get(p-1, 0)) - test_set_a.get(p-1,0)),2);
+        error += pow((regressor_a.y(test_set_a.get(p-1, 0)) - test_set_a.get(p-1,1)),2);
     }
     return error;
 }

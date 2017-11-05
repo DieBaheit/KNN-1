@@ -17,6 +17,9 @@ polynomial_regression
 : M_m(M_a), ... and the other members
 */
 {
+	A_m = matrix(M_m+1,M_m+1);
+	b_m = matrix(M_m+1,1);
+	w_m = matrix(M_m+1,1);
 }
 
 // Trains this regressor with the given training data as demanded in exercise
@@ -39,13 +42,13 @@ train
     for (size i = 0; i <= M_m; i++) {
         for (size j = 0; j <= M_m; j++) {
             real accumulator_for_A = 0;
-            for (size p = 1; p <= M_m; p++) {
+            for (size p = 1; p <= training_set_a.rows(); p++) {
                 accumulator_for_A += pow(training_set_a.get(p - 1, 0), i + j);
             }
             A_m.set(i, j, accumulator_for_A);
         }
         real accumulator_for_b = 0;
-        for (size p = 1; p <= M_m; p++){
+        for (size p = 1; p <= training_set_a.rows(); p++){
             accumulator_for_b += pow(training_set_a.get(p - 1, 0), i)*training_set_a.get(p-1,1);
         }
         b_m.set(i,0,accumulator_for_b);
