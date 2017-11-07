@@ -69,7 +69,7 @@ y
 {
   // @task: Use given input x and trained weights w to compute output y, as
   // stated by the first formula on the exercise sheet..
-    size y = 0;
+    real y = 0;
     for(size m = 0; m <= M_m; m++){
         y += w_m.get(m,0) * pow(x_a,m);
     }
