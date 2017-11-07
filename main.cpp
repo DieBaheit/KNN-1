@@ -16,7 +16,9 @@
   reached |   0   +   0   +  0    = ||   0  ||
   ----------------------------------==========
 
-  Authors: @task: Put your names here.
+  Authors: 
+  Viktor Studenyak, 
+  Fabian Albert
 */
 
 // ANN_USE_MSVC was set by CMake to identify the Visual Studio compiler.
@@ -44,8 +46,7 @@ typedef regressor::size size;
 // for a given x_p.
 real unknown_function_1 (real x_a)
 {
-  // @task: Return the properly computed value.
-  return cos(x_a/2);
+  return cos((real)x_a/2.0);
 }
 
 // This implements the function used to create training and test set for
@@ -53,8 +54,7 @@ real unknown_function_1 (real x_a)
 // for a given x_p.
 real unknown_function_2 (real x_a)
 {
-  // @task: Return the properly computed value.
-  return exp(-11*x_a*x_a/17);
+  return exp((-11.0*x_a*x_a)/17.0);
 }
 
 // Creates the training set demanded in exercise 1.1c.
@@ -66,12 +66,12 @@ matrix compute_training_set_1 (size P_a)
   // row, of course.
   // Remember that p starts at 1, while indices start at 0.
   matrix set_l(P_a, 2);
-
-  // @task: Create the training set. Use unknown_function_1 for this.
+  // computes for p=1,...,P_a the x_p values and the associated t_p values computed by unknown_function_1
+  // and insert them in the set_l-matrix 
   for (size p = 1; p <= P_a; p++){
-    real x_p = (2*p - 1)*M_PI/P_a - M_PI;
-    set_l.set(p-1, 0 , x_p);
-    set_l.set(p-1, 1, unknown_function_1(x_p));
+    real x_p = ((2.0*p - 1.0)*M_PI)/P_a - M_PI;  
+    set_l.set(p-1, 0 , x_p);                     
+    set_l.set(p-1, 1, unknown_function_1(x_p));  
 
   }
   return set_l;
@@ -87,9 +87,10 @@ matrix compute_test_set_1 (size P_a)
   // Remember that p starts at 1, while indices start at 0.
   matrix set_l(P_a, 2);
 
-  // @task: Create the test set. Use unknown_function_1 for this.
+  // computes for p=1,...,P_a the x_p values and the associated t_p values computed by unknown_function_1
+  // and insert them in the set_l-matrix
   for (size p = 1; p <= P_a; p++){
-    real x_p = 2*p*M_PI/P_a - M_PI;
+    real x_p = (2.0*p*M_PI)/P_a - M_PI;
     set_l.set(p-1, 0 , x_p);
     set_l.set(p-1, 1, unknown_function_1(x_p));
 
@@ -109,9 +110,10 @@ matrix compute_training_set_2 (size P_a)
   // Remember that p starts at 1, while indices start at 0.
   matrix set_l(P_a, 2);
 
-  // @task: Create the training set. Use unknown_function_2 for this.
+  // computes for p=1,...,P_a the x_p values and the associated t_p values computed by unknown_function_2
+  // and insert them in the set_l-matrix 
   for (size p = 1; p <= P_a; p++){
-    real x_p = (2*p - 1)*M_PI/P_a - M_PI;
+    real x_p = ((2.0*p - 1.0)*M_PI)/P_a - M_PI;
     set_l.set(p-1, 0 , x_p);
     set_l.set(p-1, 1, unknown_function_2(x_p));
 
@@ -130,9 +132,10 @@ matrix compute_test_set_2 (size P_a)
   // Remember that p starts at 1, while indices start at 0.
   matrix set_l(P_a, 2);
 
-  // @task: Create the test set. Use unknown_function_2 for this.
+  // computes for p=1,...,P_a the x_p values and the associated t_p values computed by unknown_function_2
+  // and insert them in the set_l-matrix
   for (size p = 1; p <= P_a; p++){
-    real x_p = 2*p*M_PI/P_a - M_PI;
+    real x_p = (2.0*p*M_PI)/P_a - M_PI;
     set_l.set(p-1, 0 , x_p);
     set_l.set(p-1, 1, unknown_function_2(x_p));
 
@@ -147,16 +150,17 @@ matrix compute_test_set_2 (size P_a)
 // The second argument is a set as returned by the compute_*_set_* functions above.
 real compute_error (const regressor& regressor_a, const matrix& test_set_a)
 {
-  // @task: Return the error for of the given regressor on the given test set.
     real error = 0;
+    // use 'error' as an accumulator to sum up the squared error-values computed by
+    // regressor_a and the x_p,t_p values stored in test_set_a.  
     for(size p = 1; p <= test_set_a.rows();p++){
-        error += pow((regressor_a.y(test_set_a.get(p-1, 0)) - test_set_a.get(p-1,1)),2);
+        error += pow((regressor_a.y(test_set_a.get(p-1, 0)) - test_set_a.get(p-1,1)),2.0);
     }
     return error;
 }
 
 
-// @task: Nothing really, but you can look at the following code to see what it
+
 // does before you execute it.
 // The files created here are compatible with gnuplot. Check what is in which
 // column of the file to plot it properly.
