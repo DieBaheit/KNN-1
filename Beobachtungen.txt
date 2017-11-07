@@ -1,8 +1,8 @@
 Zu d): Es lässt sich beobachten, dass für wachsende Modellkomplexität zunächt der Training-Error, sowie
-	der Test-Error Wert deutlich abnimmt. Allerding beginnt ab der Testing-Error einer Komplexität von 11 
-        größer zu werden und steigt rapide an (overfitting). Sogar der Training-Error steigt ab 12 wieder, jedoch deutlich
-        weniger, als der Testing-Error.
+     der Test-Error Wert deutlich abnimmt. Allerding beginnt der Testing-Error ab einer Komplexität von 11 
+     größer zu werden und steigt rapide an (overfitting). Sogar der Training-Error steigt ab 12 wieder, dennoch
+     deutlich weniger als der Testing-Error.
 
-Zu e): Der Training-Error verhält sich in etwa so wie in function_1, allerdings fällt er,  mit wachsender Komplexität,
-         nicht ganz so schnell, wie der von function_1. Allerding fällt der Testing-Error nichtmal annähernd so tief,
-         wie der von function_1. Außerdem beginnt dieser schon ab 7-8 (Komplexität) wieder anzusteigen.
+Zu e): Der Training-Error verhält sich in etwa so wie in function_1, allerdings fällt er,  mit wachsender Komplexität
+      nicht ganz so schnell, wie der von function_1. Allerding fällt der Testing-Error nichtmal annähernd so tief,
+      wie der von function_1 und beginnt außerdem schon ab 7-8 (Komplexität) wieder anzusteigen.
