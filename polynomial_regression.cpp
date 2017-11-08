@@ -10,12 +10,6 @@ polynomial_regression
 (
   size M_a
 ):M_m(M_a) //assign the M value
-// @task: You can try the constructor syntax here to initialize member variables
-// (see the constuctor of ann::matrix). Or initialize your members in the
-// function body. Just make sure all members have the right size (or value).
-/*
-: M_m(M_a), ... and the other members
-*/
 {
     //compute and assign the correct matrix-sizes
     A_m = matrix(M_m+1,M_m+1);
@@ -37,10 +31,6 @@ train
   const matrix& training_set_a
 )
 {
-  // @task: Implement training by creating the system of linear equations in the
-  // form A * w = b as stated in exercise 1.1c; so fill the corresponding
-  // members. Then solve the system elegantly, thus compute weights w.
-
 	// compute matrix A and vector b row by row (both in one loop)
     for (size i = 0; i <= M_m; i++) {
     	// compute the entries of matrix A in row i for every column

@@ -46,7 +46,7 @@ typedef regressor::size size;
 // for a given x_p.
 real unknown_function_1 (real x_a)
 {
-  return cos((real)x_a/2.0);
+  return cos(x_a/2.0);
 }
 
 // This implements the function used to create training and test set for
